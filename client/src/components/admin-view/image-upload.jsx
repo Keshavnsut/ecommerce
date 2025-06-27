@@ -50,7 +50,7 @@ function ProductImageUpload({
       formData.append("my_file", imageFile);
 
       const response = await axios.post(
-        import.meta.env.VITE_API_URL/admin/products/upload-image,
+        `${import.meta.env.VITE_API_URL}/admin/products/upload-image`,
         formData
       );
 
@@ -88,7 +88,6 @@ function ProductImageUpload({
           disabled={isEditMode}
         />
 
-        {/* No file selected */}
         {!imageFile && !uploadedImageUrl && (
           <Label
             htmlFor="image-upload"
@@ -99,14 +98,12 @@ function ProductImageUpload({
           </Label>
         )}
 
-        {/* Upload in progress */}
         {imageLoadingState && (
           <div className="flex items-center justify-center h-10">
             <Skeleton className="w-full h-10 bg-gray-100" />
           </div>
         )}
 
-        {/* Uploaded successfully or manually selected */}
         {imageFile && !imageLoadingState && (
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center">
@@ -125,7 +122,6 @@ function ProductImageUpload({
           </div>
         )}
 
-        {/* Image preview after upload */}
         {uploadedImageUrl && !imageFile && (
           <div className="mt-4">
             <img

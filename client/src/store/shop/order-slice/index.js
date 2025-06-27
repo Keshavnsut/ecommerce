@@ -9,58 +9,54 @@ const initialState = {
   orderDetails: null,
 };
 
+// Create new order
 export const createNewOrder = createAsyncThunk(
-  "/order/createNewOrder",
+  "order/create",
   async (orderData) => {
     const response = await axios.post(
-      import.meta.env.VITE_API_URL/shop/order/create,
+      `${import.meta.env.VITE_API_URL}/shop/order/create`,
       orderData
     );
-
     return response.data;
   }
 );
 
+// Capture payment
 export const capturePayment = createAsyncThunk(
-  "/order/capturePayment",
+  "order/capture",
   async ({ paymentId, payerId, orderId }) => {
     const response = await axios.post(
-      import.meta.env.VITE_API_URL/shop/order/capture,
-      {
-        paymentId,
-        payerId,
-        orderId,
-      }
+      `${import.meta.env.VITE_API_URL}/shop/order/capture`,
+      { paymentId, payerId, orderId }
     );
-
     return response.data;
   }
 );
 
+// Get all orders by user ID
 export const getAllOrdersByUserId = createAsyncThunk(
-  "/order/getAllOrdersByUserId",
+  "order/fetchAllByUser",
   async (userId) => {
     const response = await axios.get(
       `${import.meta.env.VITE_API_URL}/api/shop/order/list/${userId}`
     );
-
     return response.data;
   }
 );
 
+// Get order details
 export const getOrderDetails = createAsyncThunk(
-  "/order/getOrderDetails",
+  "order/fetchDetails",
   async (id) => {
     const response = await axios.get(
       `${import.meta.env.VITE_API_URL}/api/shop/order/details/${id}`
     );
-
     return response.data;
   }
 );
 
 const shoppingOrderSlice = createSlice({
-  name: "shoppingOrderSlice",
+  name: "shoppingOrder",
   initialState,
   reducers: {
     resetOrderDetails: (state) => {
@@ -69,6 +65,7 @@ const shoppingOrderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Create order
       .addCase(createNewOrder.pending, (state) => {
         state.isLoading = true;
       })
@@ -76,16 +73,15 @@ const shoppingOrderSlice = createSlice({
         state.isLoading = false;
         state.approvalURL = action.payload.approvalURL;
         state.orderId = action.payload.orderId;
-        sessionStorage.setItem(
-          "currentOrderId",
-          JSON.stringify(action.payload.orderId)
-        );
+        sessionStorage.setItem("currentOrderId", JSON.stringify(action.payload.orderId));
       })
       .addCase(createNewOrder.rejected, (state) => {
         state.isLoading = false;
         state.approvalURL = null;
         state.orderId = null;
       })
+
+      // Get all orders
       .addCase(getAllOrdersByUserId.pending, (state) => {
         state.isLoading = true;
       })
@@ -97,6 +93,8 @@ const shoppingOrderSlice = createSlice({
         state.isLoading = false;
         state.orderList = [];
       })
+
+      // Get order details
       .addCase(getOrderDetails.pending, (state) => {
         state.isLoading = true;
       })
@@ -112,5 +110,5 @@ const shoppingOrderSlice = createSlice({
 });
 
 export const { resetOrderDetails } = shoppingOrderSlice.actions;
-
 export default shoppingOrderSlice.reducer;
+

@@ -6,11 +6,12 @@ const initialState = {
   productList: [],
 };
 
+// Add new product
 export const addNewProduct = createAsyncThunk(
-  "/products/addnewproduct",
+  "products/addNew",
   async (formData) => {
-    const result = await axios.post(
-      import.meta.env.VITE_API_URL/admin/products/add,
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/admin/products/add`,
       formData,
       {
         headers: {
@@ -18,27 +19,27 @@ export const addNewProduct = createAsyncThunk(
         },
       }
     );
-
-    return result?.data;
+    return response?.data;
   }
 );
 
+// Fetch all products
 export const fetchAllProducts = createAsyncThunk(
-  "/products/fetchAllProducts",
+  "products/fetchAll",
   async () => {
-    const result = await axios.get(
-      import.meta.env.VITE_API_URL/admin/products/get
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/admin/products/get`
     );
-
-    return result?.data;
+    return response?.data;
   }
 );
 
+// Edit product
 export const editProduct = createAsyncThunk(
-  "/products/editProduct",
+  "products/edit",
   async ({ id, formData }) => {
-    const result = await axios.put(
-      `${import.meta.env.VITE_API_URL}/api/admin/products/edit/${id}`,
+    const response = await axios.put(
+      `${import.meta.env.VITE_API_URL}/admin/products/edit/${id}`,
       formData,
       {
         headers: {
@@ -46,23 +47,22 @@ export const editProduct = createAsyncThunk(
         },
       }
     );
-
-    return result?.data;
+    return response?.data;
   }
 );
 
+// Delete product
 export const deleteProduct = createAsyncThunk(
-  "/products/deleteProduct",
+  "products/delete",
   async (id) => {
-    const result = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/api/admin/products/delete/${id}`
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/admin/products/delete/${id}`
     );
-
-    return result?.data;
+    return response?.data;
   }
 );
 
-const AdminProductsSlice = createSlice({
+const adminProductsSlice = createSlice({
   name: "adminProducts",
   initialState,
   reducers: {},
@@ -73,13 +73,13 @@ const AdminProductsSlice = createSlice({
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.productList = action.payload.data;
+        state.productList = action.payload?.data || [];
       })
-      .addCase(fetchAllProducts.rejected, (state, action) => {
+      .addCase(fetchAllProducts.rejected, (state) => {
         state.isLoading = false;
         state.productList = [];
       });
   },
 });
 
-export default AdminProductsSlice.reducer;
+export default adminProductsSlice.reducer;
