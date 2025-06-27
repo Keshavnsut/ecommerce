@@ -18,103 +18,65 @@ function CommonForm({
   buttonText,
   isBtnDisabled,
 }) {
-  function renderInputsByComponentType(getControlItem) {
-    let element = null;
-    const value = formData[getControlItem.name] || "";
+  const renderField = (control) => {
+    const value = formData[control.name] || "";
 
-    switch (getControlItem.componentType) {
-      case "input":
-        element = (
-          <Input
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.name}
-            type={getControlItem.type}
-            value={value}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: event.target.value,
-              })
-            }
-          />
-        );
+    const handleChange = (val) => {
+      setFormData({ ...formData, [control.name]: val });
+    };
 
-        break;
+    switch (control.componentType) {
       case "select":
-        element = (
-          <Select
-            onValueChange={(value) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: value,
-              })
-            }
-            value={value}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={getControlItem.label} />
+        return (
+          <Select value={value} onValueChange={handleChange}>
+            <SelectTrigger className="w-full" id={control.name}>
+              <SelectValue placeholder={control.label} />
             </SelectTrigger>
             <SelectContent>
-              {getControlItem.options && getControlItem.options.length > 0
-                ? getControlItem.options.map((optionItem) => (
-                    <SelectItem key={optionItem.id} value={optionItem.id}>
-                      {optionItem.label}
-                    </SelectItem>
-                  ))
-                : null}
+              {control.options?.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         );
 
-        break;
       case "textarea":
-        element = (
+        return (
           <Textarea
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.id}
+            id={control.name}
+            name={control.name}
+            placeholder={control.placeholder}
             value={value}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: event.target.value,
-              })
-            }
+            onChange={(e) => handleChange(e.target.value)}
           />
         );
 
-        break;
-
+      case "input":
       default:
-        element = (
+        return (
           <Input
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.name}
-            type={getControlItem.type}
+            id={control.name}
+            name={control.name}
+            type={control.type}
+            placeholder={control.placeholder}
             value={value}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: event.target.value,
-              })
-            }
+            onChange={(e) => handleChange(e.target.value)}
           />
         );
-        break;
     }
-
-    return element;
-  }
+  };
 
   return (
     <form onSubmit={onSubmit}>
       <div className="flex flex-col gap-3">
-        {formControls.map((controlItem) => (
-          <div className="grid w-full gap-1.5" key={controlItem.name}>
-            <Label className="mb-1">{controlItem.label}</Label>
-            {renderInputsByComponentType(controlItem)}
+        {formControls.map((control) => (
+          <div className="grid w-full gap-1.5" key={control.name}>
+            <Label htmlFor={control.name} className="mb-1">
+              {control.label}
+            </Label>
+            {renderField(control)}
           </div>
         ))}
       </div>
@@ -126,3 +88,4 @@ function CommonForm({
 }
 
 export default CommonForm;
+
