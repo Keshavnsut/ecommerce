@@ -19,14 +19,28 @@ const commonFeatureRouter = require("./routes/common/feature-routes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(
-  cors({
-    origin: ["http://localhost:5174", "https://your-live-frontend-url.com"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+// Trust proxy (important for Render)
+app.set("trust proxy", 1);
+
+// CORS Middleware
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+// Manual CORS Headers (Render-safe)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  res.header("Access-Control-Allow-Origin", origin || "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  if (req.method === "OPTIONS") return res.sendStatus(200);
+  next();
+});
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -42,12 +56,12 @@ app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 app.use("/api/common/feature", commonFeatureRouter);
 
-// Optional sanity route
+// Sanity route
 app.get("/", (req, res) => {
   res.send("🚀 Backend API is running");
 });
 
-// Connect to MongoDB and start server
+// MongoDB + Server Start
 const startServer = async () => {
   try {
     await mongoose.connect("mongodb+srv://Keshav:keshav1976@cluster0.hbllc1y.mongodb.net/");
@@ -63,3 +77,4 @@ const startServer = async () => {
 };
 
 startServer();
+
